@@ -3,6 +3,7 @@ import { useMeeting } from "@videosdk.live/react-sdk";
 import ParticipantView from "./ParticipantView";
 
 const MeetingView = ({ roomIdA, roomIdB, token, setRoomState }) => {
+  const [joined, setJoined] = useState(null);
   const [currentRoom, setCurrentRoom] = useState(roomIdA);
   const [isRelaying, setIsRelaying] = useState(false);
 
@@ -12,8 +13,38 @@ const MeetingView = ({ roomIdA, roomIdB, token, setRoomState }) => {
     leave,
     switchTo,
     requestMediaRelay,
-    acceptMediaRelayRequest
-  } = useMeeting();
+    acceptMediaRelayRequest,
+    join
+  } = useMeeting({
+    onMeetingJoined: () => {
+        setJoined("JOINED");
+    },
+    onMeetingLeft: () => {
+        setRoomState(null);
+    },
+    onConnectionError: (data) => {
+        console.error("MEETING ERROR:", data);
+        alert(`Connection Failed: ${data.message}`);
+        setJoined("ERROR"); // Handle failure
+    }
+  });
+
+  useEffect(() => {
+    if (joined === null) {
+      setJoined("JOINING");
+      join();
+    }
+  }, [join, joined]);
+
+  if (joined !== "JOINED") {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+          <p className="text-xl font-semibold text-blue-600">
+              {joined === "JOINING" ? "Joining the meeting..." : "Initializing..."}
+          </p>
+      </div>
+    );
+  }
 
   if (!localParticipant) {
     return (

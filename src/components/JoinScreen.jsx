@@ -47,8 +47,6 @@ const JoinScreen = ({ setRoomState }) => {
 
   const handleJoin = () => {
     if (name && token && roomIdA && roomIdB) {
-      console.log("Starting Meeting with:", { roomId: roomIdA, token: token.substring(0, 10) + '...', peerId: peerId });
-
       setRoomState({
         roomIdA,
         roomIdB,
