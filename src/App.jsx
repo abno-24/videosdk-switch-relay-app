@@ -4,8 +4,6 @@ import JoinScreen from './components/JoinScreen';
 import MeetingView from './components/MeetingView';
 import { getTokenForRoom } from "./API";
 
-const VIDEOSDK_API_KEY = "800a7fa5-7e44-49b5-8b2d-16fbdf346640";
-
 function App() {
   const [roomState, setRoomState] = useState(null);
   const [token, setToken] = useState(null);
@@ -33,7 +31,6 @@ function App() {
         displayName: roomState.name,
         micEnabled: true,
         webcamEnabled: true,
-        apiKey: VIDEOSDK_API_KEY,
       }}
       token={token}
     >
