@@ -56,20 +56,18 @@ const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
     await requestMediaRelay({
       destinationMeetingId: roomIdB,
       token: relayToken,
-      media: ["audio", "video"],
+      media: ["audio", "video", "share", "share_audio"],
     });
+    console.log("Media relay started from");
   };
 
   return (
     <div className="p-4 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-4">
-        Current Room: {currentRoom === roomIdA ? "Room A" : "Room B"}
+        Current Room: {currentRoom === roomIdA ? "A" : "B"}
       </h1>
       <p className="mb-4 text-gray-600">
         Room ID: <span className="font-mono">{currentRoom === roomIdA ? roomIdA : roomIdB}</span>
-      </p>
-      <p className="mb-4 text-gray-600">
-        Local Participant ID: <span className="font-mono">{localParticipant.id}</span>
       </p>
 
       {/* Control Buttons */}
@@ -77,14 +75,14 @@ const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
         <button
           onClick={handleSwitchRoom}
           disabled={currentRoom === roomIdB}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 cursor-pointer"
         >
           {currentRoom === roomIdA ? "Seamless Switch to Room B" : "Currently in Room B"}
         </button>
 
         <button
           onClick={handleRelay}
-          className="bg-purple-600 text-white px-4 py-2 rounded"
+          className="bg-purple-600 text-white px-4 py-2 rounded cursor-pointer"
         >
           Start Media Relay
         </button>
@@ -94,7 +92,7 @@ const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
             leave();
             setRoomState(null); // Return to join screen
           }}
-          className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer"
         >
           Leave
         </button>
