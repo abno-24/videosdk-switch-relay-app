@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MeetingProvider } from '@videosdk.live/react-sdk';
 import JoinScreen from './components/JoinScreen';
 import MeetingView from './components/MeetingView';

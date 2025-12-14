@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useMeeting } from "@videosdk.live/react-sdk";
 import ParticipantView from "./ParticipantView";
 import { getTokenForRoom } from "../API";

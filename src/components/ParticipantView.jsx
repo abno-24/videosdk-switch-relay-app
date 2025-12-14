@@ -1,5 +1,5 @@
+import { useRef, useEffect } from "react";
 import { useParticipant, useStream, VideoPlayer } from "@videosdk.live/react-sdk";
-import React, { useRef, useEffect } from "react";
 
 const ParticipantView = ({ participantId }) => {
   const { webcamStream, micStream, webcamOn } = useParticipant(participantId);
