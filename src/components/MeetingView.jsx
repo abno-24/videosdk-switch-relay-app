@@ -26,6 +26,7 @@ const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
 
   useEffect(() => {
     join();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!joined || !localParticipant) {
