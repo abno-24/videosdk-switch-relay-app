@@ -26,7 +26,7 @@ const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
 
   useEffect(() => {
     join();
-  },[]);
+  }, []);
 
   if (!joined || !localParticipant) {
     return (
@@ -65,6 +65,9 @@ const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
       <h1 className="text-3xl font-bold mb-4">
         Current Room: {currentRoom === roomIdA ? "Room A" : "Room B"}
       </h1>
+      <p className="mb-4 text-gray-600">
+        Room ID: <span className="font-mono">{currentRoom === roomIdA ? roomIdA : roomIdB}</span>
+      </p>
       <p className="mb-4 text-gray-600">
         Local Participant ID: <span className="font-mono">{localParticipant.id}</span>
       </p>

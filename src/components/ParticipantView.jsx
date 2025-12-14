@@ -10,18 +10,12 @@ const ParticipantView = ({ participantId }) => {
   const videoRef = useRef(null);
   const audioRef = useRef(null);
 
-  // if (!videoStream && !audioStream) {
-  //   if (participantId !== localParticipant.id) {
-  //     // We can skip this check for now, but in complex scenarios it's useful.
-  //   }
-  // }
-
   useEffect(() => {
     if (videoRef.current && videoStream) {
       videoRef.current.srcObject = videoStream;
       videoRef.current
-      .play()
-      .catch(() => console.log("Autoplay prevented"));
+        .play()
+        .catch(() => console.log("Autoplay prevented"));
       ;
     }
   }, [videoStream]);

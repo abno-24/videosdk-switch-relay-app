@@ -1,50 +1,62 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { createRoom } from '../API';
+import { createRoom, getTokenForRoom } from '../API';
 
 const JoinScreen = ({ setRoomState }) => {
   const [name, setName] = useState('');
+  const [token, setToken] = useState(null);
   const [roomIdA, setRoomIdA] = useState(null);
   const [roomIdB, setRoomIdB] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const peerId = React.useMemo(() => uuidv4(), []);
-  const apiCalled = useRef(false);
+  const peerId = useMemo(() => uuidv4(), []);
 
   useEffect(() => {
-    const prepareMeeting = async () => {
-      if (apiCalled.current) return;
-      apiCalled.current = true;
-
-      setLoading(true);
-      setError(null);
-
+    const initRoomsAndToken = async () => {
       try {
-        const idA = await createRoom();        
-        const idB = await createRoom();
-        
-        setRoomIdA(idA);
-        setRoomIdB(idB);
+        setLoading(true);
+        setError(null);
+
+        // 1️⃣ Check if rooms already exist (shared across tabs)
+        let roomA = localStorage.getItem("VIDEOSDK_ROOM_A");
+        let roomB = localStorage.getItem("VIDEOSDK_ROOM_B");
+
+        // 2️⃣ Create rooms ONLY if they do not exist
+        if (!roomA || !roomB) {
+          roomA = await createRoom();
+          roomB = await createRoom();
+
+          localStorage.setItem("VIDEOSDK_ROOM_A", roomA);
+          localStorage.setItem("VIDEOSDK_ROOM_B", roomB);
+        }
+
+        setRoomIdA(roomA);
+        setRoomIdB(roomB);
+
+        // 3️⃣ Get token ONLY for Room A initially
+        const meetingToken = await getTokenForRoom(roomA, peerId);
+        setToken(meetingToken);
       } catch (err) {
-        console.error("Preparation Error:", err);
-        setError("Failed to initialize resources. Check console or backend connection.");
+        console.error("Initialization error:", err);
+        setError("Failed to initialize rooms. Please refresh.");
       } finally {
         setLoading(false);
       }
     };
 
-    prepareMeeting();
+    initRoomsAndToken();
   }, []);
 
   const handleJoin = () => {
-    if (!name) return;
+    if (!name || !token || !roomIdA || !roomIdB) return;
 
     setRoomState({
+      name,
+      peerId,
+      token,
       roomIdA,
       roomIdB,
-      peerId,
-      name
     });
   };
 
