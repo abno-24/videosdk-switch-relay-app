@@ -1,8 +1,8 @@
-import { useParticipant, useStream } from "@videosdk.live/react-sdk";
+import { useParticipant, useStream, VideoPlayer } from "@videosdk.live/react-sdk";
 import React, { useRef, useEffect } from "react";
 
 const ParticipantView = ({ participantId }) => {
-  const { webcamStream, micStream, webcamOn, displayName } = useParticipant(participantId);
+  const { webcamStream, micStream, webcamOn } = useParticipant(participantId);
 
   const { stream: videoStream } = useStream(webcamStream);
   const { stream: audioStream } = useStream(micStream);
@@ -19,7 +19,10 @@ const ParticipantView = ({ participantId }) => {
   useEffect(() => {
     if (videoRef.current && videoStream) {
       videoRef.current.srcObject = videoStream;
-      videoRef.current.play();
+      videoRef.current
+      .play()
+      .catch(() => console.log("Autoplay prevented"));
+      ;
     }
   }, [videoStream]);
 
@@ -31,17 +34,18 @@ const ParticipantView = ({ participantId }) => {
   }, [audioStream]);
 
   return (
-    <div className="bg-gray-800 rounded-lg p-2 flex flex-col items-center justify-center m-2 shadow-xl w-64 h-48">
-      <p className="text-white font-bold mb-2">
-        {displayName} {webcamOn ? "" : "(Webcam Off)"}
-      </p>
-
+    <div className="bg-gray-800 rounded-lg p-2 flex flex-col items-center justify-center m-2 shadow-xl w-80 h-46">
       {webcamOn ? (
-        <video
+        <VideoPlayer
+          participantId={participantId}
+          type="video"
           ref={videoRef}
           autoPlay
           muted={true}
-          className="w-full h-full object-cover rounded"
+          playsInline
+          containerStyle={{
+            width: "300px",
+          }}
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center bg-gray-700 rounded">
@@ -49,7 +53,7 @@ const ParticipantView = ({ participantId }) => {
         </div>
       )}
 
-      <audio ref={audioRef} autoPlay muted={false} />
+      <audio ref={audioRef} autoPlay playsInline muted={false} />
     </div>
   );
 };

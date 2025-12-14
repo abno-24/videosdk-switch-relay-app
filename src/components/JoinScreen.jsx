@@ -1,60 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { createRoom, getTokenForRoom } from '../API';
+import { createRoom } from '../API';
 
 const JoinScreen = ({ setRoomState }) => {
   const [name, setName] = useState('');
-  const [token, setToken] = useState(null);
   const [roomIdA, setRoomIdA] = useState(null);
   const [roomIdB, setRoomIdB] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const peerId = React.useMemo(() => uuidv4(), []);
-
-  const [isInitialized, setIsInitialized] = useState(false);
+  const apiCalled = useRef(false);
 
   useEffect(() => {
     const prepareMeeting = async () => {
-      if (isInitialized) return;
+      if (apiCalled.current) return;
+      apiCalled.current = true;
 
       setLoading(true);
       setError(null);
+
       try {
-        // 1. Create Room A
-        const idA = await createRoom();
-        setRoomIdA(idA);
-
-        // 2. Create Room B
+        const idA = await createRoom();        
         const idB = await createRoom();
+        
+        setRoomIdA(idA);
         setRoomIdB(idB);
-
-        // 3. Get the initial token for Room A using the unique peerId
-        const initialToken = await getTokenForRoom(idA, peerId);
-        setToken(initialToken);
-
       } catch (err) {
         console.error("Preparation Error:", err);
         setError("Failed to initialize resources. Check console or backend connection.");
       } finally {
         setLoading(false);
-        setIsInitialized(true);
       }
     };
 
     prepareMeeting();
-  }, [isInitialized, peerId]);
+  }, []);
 
   const handleJoin = () => {
-    if (name && token && roomIdA && roomIdB) {
-      setRoomState({
-        roomIdA,
-        roomIdB,
-        token,
-        peerId,
-        name
-      });
-    }
+    if (!name) return;
+
+    setRoomState({
+      roomIdA,
+      roomIdB,
+      peerId,
+      name
+    });
   };
 
   return (
@@ -77,7 +68,7 @@ const JoinScreen = ({ setRoomState }) => {
           </div>
         )}
 
-        {roomIdA && roomIdB && token ? (
+        {roomIdA && roomIdB && (
           <>
             <div className="mb-4 bg-green-50 p-3 rounded-lg border border-green-200">
               <p className="text-sm text-gray-700">
@@ -107,8 +98,6 @@ const JoinScreen = ({ setRoomState }) => {
               Join Room A
             </button>
           </>
-        ) : (
-          !loading && <p className='text-center text-gray-500'>Failed to load tokens/rooms.</p>
         )}
       </div>
     </div>

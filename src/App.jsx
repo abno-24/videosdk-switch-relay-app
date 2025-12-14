@@ -1,69 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MeetingProvider } from '@videosdk.live/react-sdk';
 import JoinScreen from './components/JoinScreen';
 import MeetingView from './components/MeetingView';
+import { getTokenForRoom } from "./API";
 
-const onMeetingJoined = () => {
-  console.log("MEETING EVENT: Successfully joined the meeting!");
-};
-
-const onMeetingLeft = () => {
-  console.log("MEETING EVENT: Left the meeting.");
-};
-
-const onSpeakerChanged = (activeSpeakerId) => {
-  console.log(`MEETING EVENT: Active speaker changed to ${activeSpeakerId}`);
-};
-
-const onConnectionOpen = () => {
-  console.log("MEETING EVENT: Connection opened. SDK is active.");
-};
-
-// This is crucial for catching errors
-const onConnectionError = (data) => {
-  console.error("MEETING EVENT: Connection Error!", data);
-  alert(`Connection Error: ${data.message || 'Check console for details.'}`);
-};
+const VIDEOSDK_API_KEY = "800a7fa5-7e44-49b5-8b2d-16fbdf346640";
 
 function App() {
   const [roomState, setRoomState] = useState(null);
+  const [token, setToken] = useState(null);
 
-  if (!roomState) {
+  useEffect(() => {
+    if (!roomState) return;
+
+    const fetchToken = async () => {
+      const t = await getTokenForRoom(roomState.roomIdA, roomState.peerId);
+      setToken(t);
+    };
+
+    fetchToken();
+  }, [roomState]);
+
+  if (!roomState || !token) {
     return <JoinScreen setRoomState={setRoomState} />;
   }
 
   return (
     <MeetingProvider
       config={{
-        meetingId: roomState.roomIdA, // Start in Room A
-        micEnabled: true,
-        webcamEnabled: true,
+        meetingId: roomState.roomIdA,
         participantId: roomState.peerId,
         displayName: roomState.name,
+        micEnabled: true,
+        webcamEnabled: true,
+        apiKey: VIDEOSDK_API_KEY,
       }}
-      token={roomState.token}
-
-      events={{
-        onMeetingJoined,
-        onMeetingLeft,
-        onSpeakerChanged,
-        onConnectionOpen,
-        onConnectionError,
-        onMicRequested: ({ accept, reject }) => {
-          console.log("Microphone access requested.");
-          accept();
-        },
-        onWebcamRequested: ({ accept, reject }) => {
-          console.log("Webcam access requested.");
-          accept();
-        },
-      }}
+      token={token}
     >
       <MeetingView
         roomIdA={roomState.roomIdA}
         roomIdB={roomState.roomIdB}
-        token={roomState.token}
+        peerId={roomState.peerId}
         setRoomState={setRoomState}
+        setToken={setToken}
       />
     </MeetingProvider>
   )
