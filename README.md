@@ -119,3 +119,33 @@ This approach is useful for broadcasting, monitoring, or overflow scenarios.
 - Tokens must be generated correctly for each room
 - Media Relay does not create a visible participant in the target room
 - Browser autoplay restrictions may block audio until user interaction
+
+## 📽️ Demo Instructions
+
+### Demo Setup
+1. Open the application in **two separate browser tabs**
+2. Enter different participant names
+3. Join **Room A** from both tabs
+
+---
+
+### Demo 1: Normal Room Switching
+1. In Tab 2, click **“Seamless Switch to Room B”**
+2. Observe:
+   - Tab 2 leaves Room A
+   - Tab 1 now shows only one participant
+   - Tab 2 joins Room B independently
+
+This demonstrates a full participant transition between rooms.
+
+---
+
+### Demo 2: Media Relay
+1. Refresh both tabs and join Room A again
+2. In Tab 2, click **“Start Media Relay”**
+3. Observe:
+   - Participant remains in Room A
+   - Media is relayed to Room B
+   - No participant reconnection occurs
+
+This demonstrates Media Relay without room switching.
