@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMeeting } from "@videosdk.live/react-sdk";
 import ParticipantView from "./ParticipantView";
 import { getTokenForRoom } from "../API";
@@ -6,6 +6,9 @@ import { getTokenForRoom } from "../API";
 const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
   const [currentRoom, setCurrentRoom] = useState(roomIdA);
   const [joined, setJoined] = useState(false);
+  const [isRelaying, setIsRelaying] = useState(false);
+
+  const relayRef = useRef(null);
 
   const {
     join,
@@ -14,6 +17,7 @@ const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
     localParticipant,
     switchTo,
     requestMediaRelay,
+    stopMediaRelay,
   } = useMeeting({
     onMeetingJoined: () => {
       setJoined(true);
@@ -40,9 +44,15 @@ const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
   }
 
   const handleSwitchRoom = async () => {
+    if (isRelaying && relayRef.current) {
+      await stopMediaRelay(relayRef.current);
+      relayRef.current = null;
+      setIsRelaying(false);
+    }
+
     const newToken = await getTokenForRoom(roomIdB, peerId);
 
-    switchTo({
+    await switchTo({
       meetingId: roomIdB,
       token: newToken,
     });
@@ -52,13 +62,27 @@ const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
   };
 
   const handleRelay = async () => {
+    if (currentRoom !== roomIdA) {
+      alert("Media Relay can only be started from Room A.");
+      return;
+    }
+
+    if (isRelaying) {
+      alert("Media Relay already running.");
+      return;
+    }
+
     const relayToken = await getTokenForRoom(roomIdB, peerId);
 
-    await requestMediaRelay({
+    const relayId = await requestMediaRelay({
       destinationMeetingId: roomIdB,
       token: relayToken,
-      media: ["audio", "video", "share", "share_audio"],
+      media: ["audio", "video"],
     });
+
+    relayRef.current = relayId;
+    setIsRelaying(true);
+
     console.log("Media relay started to Room B");
   };
 
@@ -70,22 +94,26 @@ const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
       <p className="mb-4 text-gray-600">
         Room ID: <span className="font-mono">{currentRoom === roomIdA ? roomIdA : roomIdB}</span>
       </p>
+      <p className="mb-4 text-gray-600">
+        Participant ID: <span className="font-mono">{localParticipant.id}</span>
+      </p>
 
       {/* Control Buttons */}
       <div className="flex space-x-4 mb-8">
         <button
           onClick={handleSwitchRoom}
-          disabled={currentRoom === roomIdB}
+          disabled={currentRoom === roomIdB || isRelaying}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 cursor-pointer"
         >
-          {currentRoom === roomIdA ? "Seamless Switch to Room B" : "Currently in Room B"}
+          {/* {currentRoom === roomIdA ? "Seamless Switch to Room B" : "Currently in Room B"} */}
+          Seamless Switch to Room B
         </button>
 
         <button
           onClick={handleRelay}
           className="bg-purple-600 text-white px-4 py-2 rounded cursor-pointer"
         >
-          Start Media Relay
+          {isRelaying ? "Relaying Media..." : "Start Media Relay"}
         </button>
 
         <button
@@ -101,11 +129,10 @@ const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
 
       {/* Participant Grid */}
       <div className="flex flex-wrap">
-        {localParticipant && (
-          <ParticipantView participantId={localParticipant.id} />
-        )}
+        <ParticipantView participantId={localParticipant.id} />
+        
         {[...participants.keys()]
-          .filter((id) => id !== localParticipant?.id)
+          .filter((id) => id !== localParticipant.id)
           .map((id) => (
             <ParticipantView key={id} participantId={id} />
           ))}

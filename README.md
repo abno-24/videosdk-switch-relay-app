@@ -70,6 +70,9 @@ Normal switching is implemented using VideoSDK’s `switchTo` method.
 
 This approach is suitable when a participant needs to fully move between rooms.
 
+**Note on Participant Visibility During Switching**
+Due to the asynchronous nature of VideoSDK events and stream teardown, a brief overlap of participant visibility may occur during **normal room switching**. This is expected behavior and resolves automatically once participant leave/join events are fully propagated.
+
 ---
 
 ## 🔄 Room Switching Using Media Relay

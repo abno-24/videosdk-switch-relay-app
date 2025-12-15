@@ -46,6 +46,7 @@ const JoinScreen = ({ setRoomState }) => {
     };
 
     initRoomsAndToken();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleJoin = () => {
