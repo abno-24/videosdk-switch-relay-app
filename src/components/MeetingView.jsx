@@ -59,7 +59,7 @@ const MeetingView = ({ roomIdA, roomIdB, peerId, setRoomState, setToken }) => {
       token: relayToken,
       media: ["audio", "video", "share", "share_audio"],
     });
-    console.log("Media relay started from");
+    console.log("Media relay started to Room B");
   };
 
   return (
