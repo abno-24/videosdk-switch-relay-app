@@ -18,11 +18,9 @@ const JoinScreen = ({ setRoomState }) => {
         setLoading(true);
         setError(null);
 
-        // 1️⃣ Check if rooms already exist (shared across tabs)
         let roomA = localStorage.getItem("VIDEOSDK_ROOM_A");
         let roomB = localStorage.getItem("VIDEOSDK_ROOM_B");
 
-        // 2️⃣ Create rooms ONLY if they do not exist
         if (!roomA || !roomB) {
           roomA = await createRoom();
           roomB = await createRoom();
@@ -34,7 +32,6 @@ const JoinScreen = ({ setRoomState }) => {
         setRoomIdA(roomA);
         setRoomIdB(roomB);
 
-        // 3️⃣ Get token ONLY for Room A initially
         const meetingToken = await getTokenForRoom(roomA, peerId);
         setToken(meetingToken);
       } catch (err) {
